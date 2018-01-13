@@ -112,3 +112,72 @@ router.get('/scrape', function(req, res) {
   });
 
 });
+
+// comment route
+router.post('/add/comment/:id', function (req, res){
+
+  // Collect article id
+  var articleId = req.params.id;
+  
+  // Collect Author Name
+  var commentAuthor = req.body.name;
+
+  // Collect Comment Content
+  var commentContent = req.body.comment;
+
+  // "result" object has the exact same key-value pairs of the "Comment" model
+  var result = {
+    author: commentAuthor,
+    content: commentContent
+  };
+
+  // create a new comment entry
+  var entry = new Comment (result);
+
+  // Saves entry to database
+  entry.save(function(err, doc) {
+    // log any errors
+    if (err) {
+      console.log(err);
+    } 
+    // Or, relate the comment to the article
+    else {
+      // Push the new Comment to the list of comments in the article
+      Article.findOneAndUpdate({'_id': articleId}, {$push: {'comments':doc._id}}, {new: true})
+      // execute the above query
+      .exec(function(err, doc){
+        // log any errors
+        if (err){
+          console.log(err);
+        } else {
+          // Send Success Header
+          res.sendStatus(200);
+        }
+      });
+    }
+  });
+
+});
+
+// delete comment route
+router.post('/remove/comment/:id', function (req, res){
+
+  // comment id
+  var commentId = req.params.id;
+
+  // delete comment by id
+  Comment.findByIdAndRemove(commentId, function (err, todo) {  
+    
+    if (err) {
+      console.log(err);
+    } 
+    else {
+      
+      res.sendStatus(200);
+    }
+
+  });
+
+});
+
+module.exports = router;
