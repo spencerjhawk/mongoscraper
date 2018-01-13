@@ -1,1 +1,1 @@
-# mongoscraper
+# mongoscraper: An App to Scrape The AV Club for Articles
